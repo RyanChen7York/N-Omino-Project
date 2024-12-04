@@ -17,10 +17,16 @@ string solutionsToString(vector<vector<vector<bool>>>& solutions);
 
 int main()
 {
-    const int SIZE = 5;
-    vector<vector<vector<bool>>> solutions = generatePolyominoes(SIZE);
-    cout << "Polyominoes of Size: " << SIZE << "\n";
-    cout << solutionsToString(solutions);
+    int size = 1;
+    cout << "Enter Size of N-Ominoes to Generate: " << "\n";
+    while(std::cin >> size)
+    {
+        vector<vector<vector<bool>>> solutions = generatePolyominoes(size);
+        cout << "Polyominoes of Size: " << size << "\n";
+        cout << "Generated " << solutions.size() << " Solutions: " << "\n";
+        cout << solutionsToString(solutions);
+        cout << "Enter Size of N-Ominoes to Generate: " << "\n";
+    }
     /*
     vector<vector<vector<bool>>> solutions;
     vector<vector<vector<bool>>> solutionsShift;
@@ -260,15 +266,22 @@ void removeDuplicates(vector<vector<vector<bool>>>& solutions)
 {
     //auto last = unique(solutions.begin(), solutions.end());
     //solutions.erase(last, solutions.end());
-    for(int i = 0; i < solutions.size(); i++)
+    int i = 0;
+    while(i < solutions.size())
     {
-        for(int j = i + 1; j < solutions.size(); j++)
+        int j = i + 1;
+        while(j < solutions.size())
         {
             if(solutions[i] == solutions[j])
             {
                 solutions.erase(solutions.begin() + j);
             }
+            else
+            {
+                j++;
+            }
         }
+        i++;
     }
 }
 string solutionsToString(vector<vector<vector<bool>>>& solutions)
