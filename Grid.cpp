@@ -6,8 +6,9 @@ using std::cout, std::vector, std::string, std::unique;
 
 int initializeGrid(vector<vector<bool>>& grid, int n);
 vector<vector<bool>> expandGrid(vector<vector<bool>>& grid);
+vector<vector<bool>> shrinkToPieces(vector<vector<bool>>& grid);
 string gridToString(vector<vector<bool>>& grid);
-void addPiece(vector<vector<bool>>& grid, int row, int col);
+vector<vector<bool>> addPiece(vector<vector<bool>>& grid, int row, int col);
 void removeDuplicates(vector<vector<vector<bool>>>& solutions);
 string solutionsToString(vector<vector<vector<bool>>>& solutions);
 
@@ -18,8 +19,9 @@ int main()
     vector<vector<bool>> grid;
     vector<vector<bool>> grid1;
     initializeGrid(grid, size);
-    addPiece(grid, 2, 1);
+    grid = addPiece(grid, 2, 1);
     grid1 = expandGrid(grid);
+    grid1 = shrinkToPieces(grid1);
     solutions.push_back(grid);
     solutions.push_back(grid1);
     removeDuplicates(solutions);
@@ -42,7 +44,7 @@ int initializeGrid(vector<vector<bool>>& grid, int n)
     return EXIT_SUCCESS;
 }
 
-//expands grid in each direction by 1
+//expands grid in each direction by 1, makes it larger than needed to be able to add pieces to each side
 vector<vector<bool>> expandGrid(vector<vector<bool>>& grid)
 {
     vector<vector<bool>> newGrid;
@@ -66,6 +68,22 @@ vector<vector<bool>> expandGrid(vector<vector<bool>>& grid)
     return newGrid;
 }
 
+//shrinks grid to size actually needed to hold the n-omino after shifting (1 on right, 1 on bottom)
+vector<vector<bool>> shrinkToPieces(vector<vector<bool>>& grid)
+{
+    vector<vector<bool>> newGrid;
+    int n = grid.size();
+    for(int i = 0; i < n - 1; i++)
+    {
+        vector<bool> row;
+        for(int j = 0; j < n - 1; j++)
+        {
+            row.push_back(grid[i][j]);
+        }
+        newGrid.push_back(row);
+    }
+    return newGrid;
+}
 //converts grid to string for printing
 string gridToString(vector<vector<bool>>& grid)
 {
@@ -83,9 +101,11 @@ string gridToString(vector<vector<bool>>& grid)
 }
 
 //adds piece at row, column
-void addPiece(vector<vector<bool>>& grid, int row, int col)
+vector<vector<bool>> addPiece(vector<vector<bool>>& grid, int row, int col)
 {
-    grid[row][col] = true;
+    vector<vector<bool>> newGrid = grid;
+    newGrid[row][col] = true;
+    return newGrid;
 }
 
 void removeDuplicates(vector<vector<vector<bool>>>& solutions)
