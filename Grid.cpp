@@ -10,12 +10,18 @@ vector<vector<bool>> shrinkToPieces(vector<vector<bool>>& grid);
 string gridToString(vector<vector<bool>>& grid);
 vector<vector<bool>> addPiece(vector<vector<bool>>& grid, int row, int col);
 vector<vector<bool>> shiftTopLeft(vector<vector<bool>>& grid);
+vector<vector<vector<bool>>> generatePolyominoes(int n);
+bool nextToAPiece(vector<vector<bool>>& grid, int row, int col);
 void removeDuplicates(vector<vector<vector<bool>>>& solutions);
 string solutionsToString(vector<vector<vector<bool>>>& solutions);
 
 int main()
 {
-    const int size = 3;
+    const int SIZE = 5;
+    vector<vector<vector<bool>>> solutions = generatePolyominoes(SIZE);
+    cout << "Polyominoes of Size: " << SIZE << "\n";
+    cout << solutionsToString(solutions);
+    /*
     vector<vector<vector<bool>>> solutions;
     vector<vector<vector<bool>>> solutionsShift;
     vector<vector<bool>> grid;
@@ -34,6 +40,7 @@ int main()
     //solutions.push_back(grid);
     //solutions.push_back(grid1);
     //solutions.push_back(grid2);
+    
     for(int i = 0; i < solutions.size(); i++)
     {
         solutionsShift.push_back(shiftTopLeft(solutions[i]));
@@ -42,6 +49,7 @@ int main()
     cout << solutionsToString(solutions);
     cout << "shifted: " << "\n";
     cout << solutionsToString(solutionsShift);
+    */
     return EXIT_SUCCESS;
 }
 
@@ -182,10 +190,86 @@ vector<vector<bool>> shiftTopLeft(vector<vector<bool>>& grid)
     return newGrid;
 }
 
+vector<vector<vector<bool>>> generatePolyominoes(int n)
+{
+    //only one solution for 1x1
+    vector<vector<vector<bool>>> solutions;
+    if(n == 1)
+    {
+        vector<vector<bool>> solution;
+        initializeGrid(solution,1);
+        solution = addPiece(solution,0,0);
+        solutions.push_back(solution);
+        return solutions;
+    }
+
+    //otherwise start with a smaller polyomino and build up on it
+    vector<vector<vector<bool>>> smallerSolutions = generatePolyominoes(n-1);
+    //for each smaller polyomino, expand grid, add a piece to each valid location
+    for(int i = 0; i < smallerSolutions.size(); i++)
+    {
+        vector<vector<bool>> smallerSolution = smallerSolutions[i];
+        smallerSolution = expandGrid(smallerSolution);
+        int size = smallerSolution.size(); //size of smaller solution after expanding
+        for(int row = 0; row < size; row++)
+        {
+            for(int col = 0; col < size; col++)
+            {
+                if(!smallerSolution[row][col] && nextToAPiece(smallerSolution, row, col)) //if current position isn't already occupied by a piece and is next to a piece
+                {
+                    vector<vector<bool>> newSolution = smallerSolution;
+                    newSolution[row][col] = true;
+                    newSolution = shiftTopLeft(newSolution);
+                    newSolution = shrinkToPieces(newSolution);
+                    solutions.push_back(newSolution);
+                }
+            }
+        }
+    }
+    removeDuplicates(solutions);
+    return solutions;
+}
+
+bool nextToAPiece(vector<vector<bool>>& board, int row, int col)
+{
+    //if piece specified by row, col is _ of another piece
+    int size = board.size();
+    bool leftOf = false;
+    bool rightOf = false;
+    bool topOf = false;
+    bool bottomOf = false;
+    if(col < size - 1) //leftOf
+    {
+        leftOf = board[row][col + 1];
+    }
+    if(col > 0) //rightOf
+    {
+        rightOf = board[row][col - 1];
+    }
+    if(row < size - 1) //topOf
+    {
+        topOf = board[row + 1][col];
+    }
+    if(row > 0) //bottomOf
+    {
+        bottomOf = board[row - 1][col];
+    }
+    return leftOf || rightOf || topOf || bottomOf;
+}
 void removeDuplicates(vector<vector<vector<bool>>>& solutions)
 {
-    auto last = unique(solutions.begin(), solutions.end());
-    solutions.erase(last, solutions.end());
+    //auto last = unique(solutions.begin(), solutions.end());
+    //solutions.erase(last, solutions.end());
+    for(int i = 0; i < solutions.size(); i++)
+    {
+        for(int j = i + 1; j < solutions.size(); j++)
+        {
+            if(solutions[i] == solutions[j])
+            {
+                solutions.erase(solutions.begin() + j);
+            }
+        }
+    }
 }
 string solutionsToString(vector<vector<vector<bool>>>& solutions)
 {
