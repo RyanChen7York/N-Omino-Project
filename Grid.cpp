@@ -9,6 +9,7 @@ vector<vector<bool>> expandGrid(vector<vector<bool>>& grid);
 vector<vector<bool>> shrinkToPieces(vector<vector<bool>>& grid);
 string gridToString(vector<vector<bool>>& grid);
 vector<vector<bool>> addPiece(vector<vector<bool>>& grid, int row, int col);
+vector<vector<bool>> shiftTopLeft(vector<vector<bool>>& grid);
 void removeDuplicates(vector<vector<vector<bool>>>& solutions);
 string solutionsToString(vector<vector<vector<bool>>>& solutions);
 
@@ -16,16 +17,31 @@ int main()
 {
     const int size = 3;
     vector<vector<vector<bool>>> solutions;
+    vector<vector<vector<bool>>> solutionsShift;
     vector<vector<bool>> grid;
     vector<vector<bool>> grid1;
+    vector<vector<bool>> grid3;
+    initializeGrid(grid3, 5);
+    grid3 = addPiece(grid3, 1, 3);
+    grid3 = addPiece(grid3, 3, 1);
+    grid3 = addPiece(grid3, 4, 4);
+    solutions.push_back(grid3);
     initializeGrid(grid, size);
     grid = addPiece(grid, 2, 1);
     grid1 = expandGrid(grid);
     grid1 = shrinkToPieces(grid1);
-    solutions.push_back(grid);
-    solutions.push_back(grid1);
+    vector<vector<bool>> grid2 = addPiece(grid1, 0, 1);
+    //solutions.push_back(grid);
+    //solutions.push_back(grid1);
+    //solutions.push_back(grid2);
+    for(int i = 0; i < solutions.size(); i++)
+    {
+        solutionsShift.push_back(shiftTopLeft(solutions[i]));
+    }
     removeDuplicates(solutions);
     cout << solutionsToString(solutions);
+    cout << "shifted: " << "\n";
+    cout << solutionsToString(solutionsShift);
     return EXIT_SUCCESS;
 }
 
@@ -105,6 +121,64 @@ vector<vector<bool>> addPiece(vector<vector<bool>>& grid, int row, int col)
 {
     vector<vector<bool>> newGrid = grid;
     newGrid[row][col] = true;
+    return newGrid;
+}
+
+vector<vector<bool>> shiftTopLeft(vector<vector<bool>>& grid)
+{
+    int n = grid.size();
+    
+    //finds row of top most piece
+    int topMostPieceRow = -1;
+    for(int i = 0; i < n && topMostPieceRow == -1; i++)
+    {
+        for(int j = 0; j < n && topMostPieceRow == -1; j++)
+        {
+            if(grid[i][j])
+            {
+                topMostPieceRow = i;
+            }
+        }
+    }
+
+    //finds column of left most piece
+    int leftMostPieceCol = -1;
+    for(int j = 0; j < n && leftMostPieceCol == -1; j++)
+    {
+        for(int i = 0; i < n && leftMostPieceCol == -1; i++)
+        {
+            if(grid[i][j])
+            {
+                leftMostPieceCol = j;
+            }
+        }
+    }
+
+    //in case of empty grid, return an empty grid
+    if(topMostPieceRow == -1)
+    {
+        vector<vector<bool>> newGrid = grid;
+        return newGrid;
+    }
+
+    //shifts grid based on that
+    vector<vector<bool>> newGrid;
+    for(int i = 0; i < n; i++)
+    {
+        vector<bool> row;
+        for(int j = 0; j < n; j++)
+        {
+            if(i + topMostPieceRow < n && j + leftMostPieceCol < n)
+            {
+                row.push_back(grid[i + topMostPieceRow][j + leftMostPieceCol]);
+            }
+            else
+            {
+                row.push_back(false);
+            }
+        }
+        newGrid.push_back(row);
+    }
     return newGrid;
 }
 
