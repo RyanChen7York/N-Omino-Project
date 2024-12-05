@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <chrono>
 using std::cout, std::vector, std::string, std::unique;
 
 int initializeGrid(vector<vector<bool>>& grid, int n);
@@ -21,41 +22,16 @@ int main()
     cout << "Enter Size of N-Ominoes to Generate: " << "\n";
     while(std::cin >> size)
     {
+        auto t1 = std::chrono::high_resolution_clock::now();
         vector<vector<vector<bool>>> solutions = generatePolyominoes(size);
         cout << "Polyominoes of Size: " << size << "\n";
         cout << "Generated " << solutions.size() << " Solutions: " << "\n";
         cout << solutionsToString(solutions);
         cout << "Enter Size of N-Ominoes to Generate: " << "\n";
+        auto t2 = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
+        cout << "time elapsed: " << elapsed.count() << " milliseconds" << "\n";
     }
-    /*
-    vector<vector<vector<bool>>> solutions;
-    vector<vector<vector<bool>>> solutionsShift;
-    vector<vector<bool>> grid;
-    vector<vector<bool>> grid1;
-    vector<vector<bool>> grid3;
-    initializeGrid(grid3, 5);
-    grid3 = addPiece(grid3, 1, 3);
-    grid3 = addPiece(grid3, 3, 1);
-    grid3 = addPiece(grid3, 4, 4);
-    solutions.push_back(grid3);
-    initializeGrid(grid, size);
-    grid = addPiece(grid, 2, 1);
-    grid1 = expandGrid(grid);
-    grid1 = shrinkToPieces(grid1);
-    vector<vector<bool>> grid2 = addPiece(grid1, 0, 1);
-    //solutions.push_back(grid);
-    //solutions.push_back(grid1);
-    //solutions.push_back(grid2);
-    
-    for(int i = 0; i < solutions.size(); i++)
-    {
-        solutionsShift.push_back(shiftTopLeft(solutions[i]));
-    }
-    removeDuplicates(solutions);
-    cout << solutionsToString(solutions);
-    cout << "shifted: " << "\n";
-    cout << solutionsToString(solutionsShift);
-    */
     return EXIT_SUCCESS;
 }
 
@@ -101,7 +77,7 @@ vector<vector<bool>> expandGrid(vector<vector<bool>>& grid)
 //shrinks grid to size actually needed to hold the n-omino after shifting (1 on right, 1 on bottom)
 vector<vector<bool>> shrinkToPieces(vector<vector<bool>>& grid)
 {
-    vector<vector<bool>> newGrid;
+    /*vector<vector<bool>> newGrid;
     int n = grid.size();
     for(int i = 0; i < n - 1; i++)
     {
@@ -113,6 +89,16 @@ vector<vector<bool>> shrinkToPieces(vector<vector<bool>>& grid)
         newGrid.push_back(row);
     }
     return newGrid;
+    */
+    
+    int n = grid.size();
+    for(int i = 0; i < n - 1; i++)
+    {
+        grid[i].erase(grid[i].end() - 1);
+    }
+    grid.erase(grid.end() - 1);
+    return grid;
+    
 }
 //converts grid to string for printing
 string gridToString(vector<vector<bool>>& grid)
@@ -214,7 +200,7 @@ vector<vector<vector<bool>>> generatePolyominoes(int n)
     //for each smaller polyomino, expand grid, add a piece to each valid location
     for(int i = 0; i < smallerSolutions.size(); i++)
     {
-        vector<vector<bool>> smallerSolution = smallerSolutions[i];
+        vector<vector<bool>>& smallerSolution = smallerSolutions[i];
         smallerSolution = expandGrid(smallerSolution);
         int size = smallerSolution.size(); //size of smaller solution after expanding
         for(int row = 0; row < size; row++)
@@ -264,8 +250,13 @@ bool nextToAPiece(vector<vector<bool>>& board, int row, int col)
 }
 void removeDuplicates(vector<vector<vector<bool>>>& solutions)
 {
-    //auto last = unique(solutions.begin(), solutions.end());
-    //solutions.erase(last, solutions.end());
+    //more efficient duplicate removal O(nlogn)
+    std::sort(solutions.begin(), solutions.end());
+    auto last = unique(solutions.begin(), solutions.end());
+    solutions.erase(last, solutions.end());
+
+    /*
+    inefficient duplicate removal O(n^2)?
     int i = 0;
     while(i < solutions.size())
     {
@@ -283,6 +274,7 @@ void removeDuplicates(vector<vector<vector<bool>>>& solutions)
         }
         i++;
     }
+    */
 }
 string solutionsToString(vector<vector<vector<bool>>>& solutions)
 {
