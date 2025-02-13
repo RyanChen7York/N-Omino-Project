@@ -37,10 +37,10 @@ int main()
         cout << "Polyominoes of Size: " << size << "\n";
         cout << "Generated " << solutions.size() << " Solutions: " << "\n";
         cout << solutionsToString(solutions);
-        cout << "Enter Size of N-Ominoes to Generate: " << "\n";
         auto t2 = std::chrono::high_resolution_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1);
-        cout << "time elapsed: " << elapsed.count() << " milliseconds" << "\n";
+        cout << "time elapsed: " << elapsed.count() << " milliseconds" << "\n\n";
+        cout << "Enter Size of N-Ominoes to Generate: " << "\n";
     }
     return EXIT_SUCCESS;
 }
