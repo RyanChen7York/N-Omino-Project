@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <string>
 #include <chrono>
-using std::cout, std::vector, std::string, std::unique, std::chrono::milliseconds;
+using std::cout, std::endl, std::vector, std::string, std::unique, std::chrono::milliseconds;
 
 struct grid
 {
@@ -12,14 +12,48 @@ struct grid
 
     int rightMost;
     int bottomMost;
+    
+    grid()
+    {
+        size = 1;
+        board = {{false}};
+        rightMost = 0;
+        bottomMost = 0;
+    }
+
+    grid(int n)
+    {
+        size = n;
+        vector<vector<bool>> newBoard;
+        for(int i = 0; i < n; i++)
+        {
+            vector<bool> newRow;
+            for(int j = 0; j < n; j++)
+            {
+                newRow.push_back(false);
+            }
+            newBoard.push_back(newRow);
+        }
+        board = newBoard;
+        rightMost = 0;
+        bottomMost = 0;
+    }
 };
 
-grid intitializeGrid(int size);
+grid expandGrid(grid& g);
+grid shrinkToSize(grid& g);
+void printGrid(grid& g);
 
 int main()
 {
-    int size = 1;
-    cout << "Enter Size of N-Ominoes to Generate: " << "\n";
+    grid* newGridptr = new grid(2);
+    grid newGrid = *newGridptr;
+    expandGrid(newGrid);
+    shrinkToSize(newGrid);
+    printGrid(newGrid);
+    //cout << "Enter Size of N-Ominoes to Generate: " << "\n";
+
+/*     
     while(std::cin >> size)
     {
         auto t1 = std::chrono::high_resolution_clock::now();
@@ -32,31 +66,14 @@ int main()
         cout << "time elapsed: " << elapsed.count() << " milliseconds" << "\n\n";
         cout << "Enter Size of N-Ominoes to Generate: " << "\n";
     }
+     */
     return EXIT_SUCCESS;
 }
 
-grid initializeGrid(int size)
+grid expandGrid(grid& g)
 {
-    grid newGrid;
-    for(int i = 0; i < size; i++)
-    {
-        vector<bool> newRow;
-        for(int j = 0; j < size; j++)
-        {
-            newRow.push_back(false);
-        }
-        newGrid.board.push_back(newRow);
-    }
-    newGrid.size = size;
-    newGrid.rightMost = 0;
-    newGrid.bottomMost = 0;
-    return newGrid;
-}
-
-grid expandGrid(grid smaller)
-{
-    grid newGrid;
-    int n = smaller.size + 2;
+    int n = g.size + 2;
+    vector<vector<bool>> board;
     for(int i = 0; i < n; i++)
     {
         vector<bool> newRow;
@@ -64,31 +81,42 @@ grid expandGrid(grid smaller)
         {
             if(i > 0 && j > 0 && i < n - 1 && j < n - 1)
             {
-                newRow.push_back(smaller.board[i-1][j-1]);
+                newRow.push_back(g.board[i-1][j-1]);
             }
             else
             {
                 newRow.push_back(false);
             }
         }
-        newGrid.board.push_back(newRow);
+        board.push_back(newRow);
     }
-
-    //
-    newGrid.size = n - 1;
-    newGrid.rightMost = smaller.rightMost;
-    newGrid.bottomMost = smaller.bottomMost;
-    return newGrid;
+    g.board = board;
+    g.size = n;
+    return g;
 }
 
-grid shrinkToSize(grid bigger)
+grid shrinkToSize(grid& g)
 {
-    int n = bigger.size;
-    bigger.board.erase(bigger.board.end() - 1);
+    int n = g.size;
+    g.board.erase(g.board.end() - 1);
     for(int i = 0; i < n; i++)
     {
-        bigger.board[i].erase(bigger.board[i].end() - 1);
+        g.board[i].erase(g.board[i].end() - 1);
     }
-    return bigger;
+    g.size--;
+    return g;
+}
+
+void printGrid(grid& g)
+{
+    for(int i = 0; i < g.size; i++)
+    {
+        for(int j = 0; j < g.size; j++)
+        {
+            char piece = g.board[i][j] ? 'P' : ' ';
+            cout << "[" << piece << "]";
+        }
+        cout << endl;
+    }
 }
 
