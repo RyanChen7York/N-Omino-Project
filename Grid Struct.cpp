@@ -120,3 +120,97 @@ void printGrid(grid& g)
     }
 }
 
+grid addPiece(grid g, int row, int col)
+{
+    g.board[row][col] = true;
+    return g;
+}
+
+std::pair<int,int> findTopLeft(grid& g)
+{
+
+    bool topFound = false;
+    int top = -1;
+    for(int row = 0; row < g.size && !topFound; row++)
+    {
+        for(int col = 0; col < g.size && !topFound; col++)
+        {
+            if(g.board[row][col])
+            {
+                topFound = true;
+                top = row;
+            }
+        }
+    }
+
+    bool leftFound = false;
+    int left = -1;
+    for(int col = 0; col < g.size && !leftFound; col++)
+    {
+        for(int row = 0; row < g.size && !leftFound; row++)
+        {
+            if(g.board[row][col])
+            {
+                leftFound = true;
+                left = col;
+            }
+        }
+    }
+
+    return std::pair<int,int>(top,left); 
+}
+
+grid shiftTopLeft(grid& g)
+{
+    std::pair<int,int> topLeft = findTopLeft(g);
+    if(topLeft.first == -1)
+    {
+        return g;
+    }
+    vector<vector<bool>> newBoard;
+    for(int newRow = 0; newRow < g.size; newRow++)
+    {
+        vector<bool> row;
+        for(int newCol = 0; newCol < g.size; newCol++)
+        {
+            if(topLeft.first + newRow < g.size && topLeft.second + newCol < g.size)
+            {
+                row.push_back(g.board[newRow + topLeft.first][newCol + topLeft.second]);
+            }
+            else
+            {
+                row.push_back(false);
+            }
+        }
+    }
+    g.board = newBoard;
+    return g;
+}
+grid setBottomRight(grid& g)
+{
+    bool bottomFound = false;
+    for(int row = g.size - 1; row >= 0 && !bottomFound; row--)
+    {
+        for(int col = 0; col < g.size && !bottomFound; col++)
+        {
+            if(g.board[row][col])
+            {
+                bottomFound = true;
+                g.bottomMost = row;
+            }
+        }
+    }
+
+    bool rightFound = false;
+    for(int col = g.size - 1; col >= 0 && !rightFound; col--)
+    {
+        for(int row = 0; row < g.size && !rightFound; row++)
+        {
+            if(g.board[row][col])
+            {
+                rightFound = true;
+                g.rightMost = col;
+            }
+        }
+    }
+}
